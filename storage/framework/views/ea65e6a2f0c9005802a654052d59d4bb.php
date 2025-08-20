@@ -72,18 +72,18 @@
                                 <i class="fas fa-info-circle me-1"></i>
                                 Activity Status
                             </h6>
-                            <div class="d-flex align-items-center">
-                                <span class="activity-status status-<?php echo e($activity->status); ?> me-2">
+                            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2">
+                                <span class="activity-status status-<?php echo e($activity->status); ?>">
                                     <?php echo e(ucfirst($activity->status)); ?>
 
                                 </span>
                                 <?php if($activity->status === 'pending'): ?>
-                                    <button type="button" class="btn btn-sm btn-success" id="scheduleBtn">
+                                    <button type="button" class="btn btn-success btn-sm w-100 w-md-auto" id="scheduleBtn">
                                         <i class="fas fa-calendar-check me-1"></i>
                                         Mark as Scheduled
                                     </button>
                                 <?php elseif($activity->status === 'scheduled'): ?>
-                                    <button type="button" class="btn btn-sm btn-primary" id="completeBtn">
+                                    <button type="button" class="btn btn-primary btn-sm w-100 w-md-auto" id="completeBtn">
                                         <i class="fas fa-check-circle me-1"></i>
                                         Mark as Completed
                                     </button>
@@ -118,20 +118,22 @@
                 </div>
                 <?php endif; ?>
                 
-                <div class="mt-4 d-flex justify-content-between">
+                <div class="mt-4 d-flex flex-column flex-sm-row justify-content-between gap-2">
                     <a href="<?php echo e(route('activities.index')); ?>" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>
                         Back to Activities
                     </a>
                     
-                    <div>
-                        <button type="button" class="btn btn-outline-info me-2" id="refreshWeatherBtn">
+                    <div class="d-grid gap-2 d-sm-flex">
+                        <button type="button" class="btn btn-outline-info" id="refreshWeatherBtn">
                             <i class="fas fa-sync me-1"></i>
-                            Refresh Weather
+                            <span class="d-none d-sm-inline">Refresh Weather</span>
+                            <span class="d-sm-none">Refresh</span>
                         </button>
                         <button type="button" class="btn btn-outline-danger" id="deleteBtn">
                             <i class="fas fa-trash me-1"></i>
-                            Delete
+                            <span class="d-none d-sm-inline">Delete</span>
+                            <span class="d-sm-none">Del</span>
                         </button>
                     </div>
                 </div>
