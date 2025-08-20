@@ -25,23 +25,39 @@ class ActivityController extends Controller
         $query = Activity::query();
 
         // Filter by date if provided
-        if ($request->has('date')) {
+        if ($request->filled('date')) {
             $query->forDate($request->date);
         }
 
         // Filter by status if provided
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->byStatus($request->status);
         }
 
         // Filter by location if provided
-        if ($request->has('location')) {
+        if ($request->filled('location')) {
             $query->byLocation($request->location);
         }
 
-        $activities = $query->orderBy('preferred_date', 'desc')
-                           ->orderBy('created_at', 'desc')
-                           ->paginate(10);
+        // Apply sorting based on request parameters
+        $sortBy = $request->get('sort_by', 'preferred_date');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        // Validate sort parameters
+        $allowedSortColumns = ['preferred_date', 'created_at', 'name', 'status'];
+        $allowedSortOrders = ['asc', 'desc'];
+        
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'preferred_date';
+        }
+        
+        if (!in_array($sortOrder, $allowedSortOrders)) {
+            $sortOrder = 'desc';
+        }
+
+        $activities = $query->orderBy($sortBy, $sortOrder)
+                           ->paginate(10)
+                           ->appends($request->except('page'));
 
         return view('activities.index', compact('activities'));
     }

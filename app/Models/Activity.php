@@ -48,7 +48,11 @@ class Activity extends Model
      */
     public function scopeByLocation($query, $location)
     {
-        return $query->where('location', 'like', "%{$location}%");
+        return $query->where(function($q) use ($location) {
+            $q->where('location', 'like', "%{$location}%")
+              ->orWhere('sub_district', 'like', "%{$location}%")
+              ->orWhere('village', 'like', "%{$location}%");
+        });
     }
 
     /**

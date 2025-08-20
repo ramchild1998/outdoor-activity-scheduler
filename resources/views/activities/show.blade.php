@@ -210,12 +210,12 @@
             <div class="card-body">
                 <div class="d-grid gap-2">
                     @if($activity->status === 'pending')
-                        <button type="button" class="btn btn-success btn-sm" onclick="updateStatus('scheduled')">
+                        <button type="button" class="btn btn-success btn-sm" onclick="$('#scheduleModal').modal('show')">
                             <i class="fas fa-calendar-check me-1"></i>
                             Schedule Activity
                         </button>
                     @elseif($activity->status === 'scheduled')
-                        <button type="button" class="btn btn-primary btn-sm" onclick="updateStatus('completed')">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="$('#completeModal').modal('show')">
                             <i class="fas fa-check-circle me-1"></i>
                             Mark Completed
                         </button>
@@ -262,8 +262,66 @@
             </div>
         </div>
     </div>
-</div>
-@endsection
+    </div>
+    
+    <!-- Schedule Confirmation Modal -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-success">
+                        <i class="fas fa-calendar-check me-2"></i>
+                        Schedule Activity
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to mark this activity as scheduled?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>{{ $activity->name }}</strong> will be marked as scheduled and moved to the scheduled activities list.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" id="confirmSchedule">
+                        <i class="fas fa-calendar-check me-1"></i>
+                        Mark as Scheduled
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Complete Confirmation Modal -->
+    <div class="modal fade" id="completeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-primary">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Complete Activity
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to mark this activity as completed?</p>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>{{ $activity->name }}</strong> will be marked as completed and moved to the completed activities list.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmComplete">
+                        <i class="fas fa-check-circle me-1"></i>
+                        Mark as Completed
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endsection
 
 @push('scripts')
 <script>
@@ -297,6 +355,28 @@ $(document).ready(function() {
                 button.prop('disabled', false).html(originalText);
             }
         });
+    });
+    
+    // Schedule button handler
+    $('#scheduleBtn').click(function() {
+        $('#scheduleModal').modal('show');
+    });
+    
+    // Confirm schedule handler
+    $('#confirmSchedule').click(function() {
+        updateStatus('scheduled');
+        $('#scheduleModal').modal('hide');
+    });
+    
+    // Complete button handler
+    $('#completeBtn').click(function() {
+        $('#completeModal').modal('show');
+    });
+    
+    // Confirm complete handler
+    $('#confirmComplete').click(function() {
+        updateStatus('completed');
+        $('#completeModal').modal('hide');
     });
     
     // Refresh weather button handler
@@ -403,10 +483,6 @@ $(document).ready(function() {
 
 // Update activity status
 function updateStatus(status) {
-    if (!confirm(`Are you sure you want to mark this activity as ${status}?`)) {
-        return;
-    }
-    
     $.ajax({
         url: `/api/activities/{{ $activity->id }}`,
         method: 'PUT',

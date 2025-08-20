@@ -11,21 +11,26 @@
                 <i class="fas fa-calendar-alt me-2"></i>
                 Activities
             </h2>
-            <a href="{{ route('activities.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-1"></i>
-                New Activity
-            </a>
+            <div>
+                <a href="{{ route('activities.create') }}" class="btn btn-primary btn-sm d-md-none" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a href="{{ route('activities.create') }}" class="btn btn-primary d-none d-md-inline-flex align-items-center">
+                    <i class="fas fa-plus me-1"></i>
+                    New Activity
+                </a>
+            </div>
         </div>
 
         <!-- Filters -->
         <div class="card mb-4">
             <div class="card-body">
-                <form method="GET" action="{{ route('activities.index') }}" class="row g-3">
-                    <div class="col-md-3">
+                <form method="GET" action="{{ route('activities.index') }}" class="row g-3" id="filterForm">
+                    <div class="col-md-2">
                         <label for="date" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" name="date" value="{{ request('date') }}">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
                             <option value="">All Status</option>
@@ -35,15 +40,34 @@
                             <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                         </select>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label for="location" class="form-label">Location</label>
-                        <input type="text" class="form-control" id="location" name="location" 
+                        <input type="text" class="form-control" id="location" name="location"
                                value="{{ request('location') }}" placeholder="Search by location...">
                     </div>
                     <div class="col-md-2">
+                        <label for="sort_by" class="form-label">Sort By</label>
+                        <select class="form-select" id="sort_by" name="sort_by">
+                            <option value="preferred_date" {{ request('sort_by', 'preferred_date') == 'preferred_date' ? 'selected' : '' }}>Date</option>
+                            <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Created At</option>
+                            <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Name</option>
+                            <option value="status" {{ request('sort_by') == 'status' ? 'selected' : '' }}>Status</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="sort_order" class="form-label">Order</label>
+                        <select class="form-select" id="sort_order" name="sort_order">
+                            <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>Descending</option>
+                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
                         <label class="form-label">&nbsp;</label>
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-outline-primary">
+                            <button type="submit" class="btn btn-outline-primary btn-sm d-md-none" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button type="submit" class="btn btn-outline-primary d-none d-md-inline-flex align-items-center">
                                 <i class="fas fa-search me-1"></i>
                                 Filter
                             </button>
@@ -54,6 +78,7 @@
         </div>
 
         <!-- Activities List -->
+        <div class="activity-list">
         @if($activities->count() > 0)
             <div class="row">
                 @foreach($activities as $activity)
@@ -180,6 +205,7 @@
                 </div>
             </div>
         @endif
+        </div>
     </div>
 </div>
 
@@ -260,9 +286,19 @@ $(document).ready(function() {
     });
     
     // Auto-submit form when filters change (optional)
-    $('#date, #status').change(function() {
-        // Uncomment the line below to auto-submit on filter change
-        // $(this).closest('form').submit();
+    $('#date, #status, #location, #sort_by, #sort_order').on('input change', function() {
+        const form = $(this).closest('form');
+        const formData = form.serialize();
+        
+        // Show loading indicator
+        $('.activity-list').html('<div class="text-center"><i class="fas fa-spinner fa-spin fa-3x"></i></div>');
+        
+        // Submit form via AJAX
+        $.get(form.attr('action'), formData, function(data) {
+            $('.activity-list').html($(data).find('.activity-list').html());
+        }).fail(function() {
+            $('.activity-list').html('<div class="alert alert-danger">Failed to load activities. Please try again.</div>');
+        });
     });
 });
 </script>
